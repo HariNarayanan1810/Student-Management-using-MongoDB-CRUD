@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student CRUD App</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body style="background-color: skyblue;">
+    <h1>Student CRUD App</h1>
+
+    <!-- Form to Add Student -->
+    <form action="/add" method="POST" id="studentForm">
+        <input type="text" name="name" placeholder="Student Name" required>
+        <input type="number" name="roll" placeholder="Roll Number" required>
+
+        <select name="category" id="category" required>
+            <option value="">-- Select Category --</option>
+            <option value="Hosteller">Hosteller</option>
+            <option value="Dayscholar">Dayscholar</option>
+        </select>
+
+        <div id="parentFields" style="display: none;">
+            <input type="text" name="address" placeholder="Parent Address">
+            <input type="text" name="mobile" placeholder="Parent Mobile Number">
+        </div>
+
+        <button type="submit">Add Student</button>
+    </form>
+
+    <!-- Table to Show Students -->
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Category</th>
+                <th>Parent Info</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% students.forEach(student => { %>
+                <tr>
+                    <td><%= student.name %></td>
+                    <td><%= student.roll %></td>
+                    <td><%= student.category %></td>
+                    <td>
+                        <% if (student.category === 'Dayscholar') { %>
+                            Address: <%= student.parentInfo?.address || 'N/A' %><br>
+                            Mobile: <%= student.parentInfo?.mobile || 'N/A' %>
+                        <% } else { %>
+                            N/A
+                        <% } %>
+                    </td>
+                    <td>
+                        <!-- Inline Form to Update -->
+                        <form action="/update/<%= student._id %>" method="POST" style="display:inline;">
+                            <input type="text" name="name" value="<%= student.name %>" required>
+                            <input type="number" name="roll" value="<%= student.roll %>" required>
+
+                            <select name="category" onchange="this.form.querySelector('.parentFields').style.display = this.value === 'Dayscholar' ? 'inline' : 'none';">
+                                <option value="Hosteller" <%= student.category === 'Hosteller' ? 'selected' : '' %>>Hosteller</option>
+                                <option value="Dayscholar" <%= student.category === 'Dayscholar' ? 'selected' : '' %>>Dayscholar</option>
+                            </select>
+
+                            <span class="parentFields" style="display: <%= student.category === 'Dayscholar' ? 'inline' : 'none' %>;">
+                                <input type="text" name="address" value="<%= student.parentInfo?.address || '' %>" placeholder="Parent Address">
+                                <input type="text" name="mobile" value="<%= student.parentInfo?.mobile || '' %>" placeholder="Parent Mobile">
+                            </span>
+
+                            <button type="submit">Update</button>
+                        </form>
+
+                        <!-- Delete Button -->
+                        <a href="/delete/<%= student._id %>">Delete</a>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+    <!-- Script to Show/Hide Parent Info in Add Form -->
+    <script>
+        const categorySelect = document.getElementById('category');
+        const parentFields = document.getElementById('parentFields');
+
+        categorySelect.addEventListener('change', () => {
+            parentFields.style.display = categorySelect.value === 'Dayscholar' ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>
